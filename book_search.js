@@ -80,6 +80,23 @@ const twentyLeaguesOut = {
     ]
 }
 
+/** Output object used in the test for when a word is located in multiple locations */
+const twentyLeaguesOutMultipleResults = {
+    "SearchTerm": "and",
+    "Results": [
+        {
+            "ISBN": "9780000528531",
+            "Page": 31,
+            "Line": 9
+        },
+        {
+            "ISBN": "9780000528531",
+            "Page": 31,
+            "Line": 10
+        }
+    ]
+}
+
 /** Output object used in case-sensitivity test */
 const caseSensitiveOut = {
     "SearchTerm": "The",
@@ -202,7 +219,7 @@ const testCorrectResultOneBook = findSearchTermInBooks("the", twentyLeaguesIn);
 if (JSON.stringify(twentyLeaguesOut) === JSON.stringify(testCorrectResultOneBook)) {
     console.log("PASS: Test Correct Result One Book");
 } else {
-    console.log("FAIL: Test 1");
+    console.log("FAIL: Test Correct Result One Book");
     console.log("Expected:", twentyLeaguesOut);
     console.log("Received:", testCorrectResultOneBook);
 }
@@ -215,9 +232,9 @@ const testCorrectNumResultsOneBook = findSearchTermInBooks("the", twentyLeaguesI
 if (testCorrectNumResultsOneBook.Results.length == 1) {
     console.log("PASS: Test Correct Number of Results One Book");
 } else {
-    console.log("FAIL: Test 2");
+    console.log("FAIL: Test Correct Number of Results One Book");
     console.log("Expected:", twentyLeaguesOut.Results.length);
-    console.log("Received:", testCorrectNumResultsOneBooks.Results.length);
+    console.log("Received:", testCorrectNumResultsOneBook.Results.length);
 }
 
 /** Test for case-sensitivity */
@@ -230,18 +247,38 @@ if (JSON.stringify(caseSensitiveOut) === JSON.stringify(testCaseSensitivity)) {
     console.log("Received:", testCaseSensitivity);
 }
 
-/** Test for multiple results in one book object */
-const testMultipleResultsOneBook = findSearchTermInBooks("and", twentyLeaguesIn); 
-if (testMultipleResultsOneBook.Results.length == 2) {
-    console.log("PASS: Test Multiple Results One Book");
+/** Test for correct result when a word is located in multiple locations */
+const testCorrectResultMultipleLocations = findSearchTermInBooks("and", twentyLeaguesIn);
+if (JSON.stringify(twentyLeaguesOutMultipleResults) === JSON.stringify(testCorrectResultMultipleLocations)) {
+    console.log("PASS: Test Correct Result Multiple Locations");
 } else {
-    console.log("FAIL: Test Multiple Results One Book");
-    console.log("Expected:", 2);
-    console.log("Received:", testMultipleResultsOneBook.Results.length);
+    console.log("FAIL: Test Correct Result Multiple Locations");
+    console.log("Expected:", twentyLeaguesOutMultipleResults);
+    console.log("Received:", testCorrectResultMultipleLocations);
+}
+
+/** Test for correct number of results when a word is located in multiple locations */
+const testCorrectNumResultMultipleLocations = findSearchTermInBooks("and", twentyLeaguesIn); 
+if (testCorrectNumResultMultipleLocations.Results.length == twentyLeaguesOutMultipleResults.Results.length) {
+    console.log("PASS: Test Correct Number of Results Multiple Locations");
+} else {
+    console.log("FAIL: Test Correct Number of Results Multiple Locations");
+    console.log("Expected:", twentyLeaguesOutMultipleResults.Results.length);
+    console.log("Received:", testCorrectNumResultMultipleLocations.Results.length);
+}
+
+/** Negative test searching one book */
+const testNegativeOneBook = findSearchTermInBooks("test", twentyLeaguesIn); 
+if (testNegativeOneBook.Results.length == 0) {
+    console.log("PASS: Test Negative One Book");
+} else {
+    console.log("FAIL: Test Negative One Book");
+    console.log("Expected:", 0);
+    console.log("Received:", testNegativeOneBook.Results.length);
 }
 
 /** Test using book object with no scanned content */
-const testNoScannedContent = findSearchTermInBooks("the", bookNoContent); 
+const testNoScannedContent = findSearchTermInBooks("test", bookNoContent); 
 if (testNoScannedContent.Results.length == 0) {
     console.log("PASS: Test No Scanned Content");
 } else {
@@ -258,16 +295,6 @@ if (testNoBookObj.Results.length == 0) {
     console.log("FAIL: Test No Book Objects");
     console.log("Expected:", 0);
     console.log("Received:", testNoBookObj.Results.length);
-}
-
-/** Negative test searching one book */
-const testNegativeOneBook = findSearchTermInBooks("test", twentyLeaguesIn); 
-if (testNegativeOneBook.Results.length == 0) {
-    console.log("PASS: Test Negative One Book");
-} else {
-    console.log("FAIL: Test Negative One Book");
-    console.log("Expected:", 0);
-    console.log("Received:", testNegativeOneBook.Results.length);
 }
 
 /** Get the correct result searching multiple books */
@@ -290,18 +317,6 @@ if (testCorrectNumResultsMultipleBooks.Results.length == multipleBooksOutThe.Res
     console.log("Received:", testCorrectNumResultsMultipleBooks.Results.length);
 }
 
-/** Test to ensure that the funtion results that contain the word only 
- * For example, if we search for "on" we should get "longer"
-*/
-const testResultContainWordOnly = findSearchTermInBooks("on", multipleBooksIn);
-if (JSON.stringify(multipleBooksOutOn) === JSON.stringify(testResultContainWordOnly)) {
-    console.log("PASS: Test Results Contain Word Only");
-} else {
-    console.log("FAIL: Test Results Contain Word Only");
-    console.log("Expected:", multipleBooksOutOn);
-    console.log("Received:", testResultContainWordOnly);
-}
-
 /** Negative test searching multiple books */
 const testNegativeSearchMultipleBooks = findSearchTermInBooks("train", multipleBooksIn); 
 if (testNegativeSearchMultipleBooks.Results.length == 0) {
@@ -310,4 +325,16 @@ if (testNegativeSearchMultipleBooks.Results.length == 0) {
     console.log("FAIL: Test Negative Search Multiple Books");
     console.log("Expected:", 0);
     console.log("Received:", testSearchMultipleBooks.Results.length);
+}
+
+/** Test to ensure that the funtion searches only for the word itself, and not within another word.
+ * For example, if we search for "on" we should get "longer"
+*/
+const testSearchForWordOnly = findSearchTermInBooks("on", multipleBooksIn);
+if (JSON.stringify(multipleBooksOutOn) === JSON.stringify(testSearchForWordOnly)) {
+    console.log("PASS: Test Function Searches for Word Only");
+} else {
+    console.log("FAIL: Test Function Searches for Word Only");
+    console.log("Expected:", multipleBooksOutOn);
+    console.log("Received:", testSearchForWordOnly);
 }
